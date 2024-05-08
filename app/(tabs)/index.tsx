@@ -1,70 +1,65 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, Pressable, Text, Image, Modal } from 'react-native';
+import axios from 'axios';
+import styles from '@/components/Style';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const App = () => {
+  const [cep, setCep] = useState('');
+  const [address, setAddress] = useState(null);
+  const [visivel ,setVisivel] = useState(false)
 
-export default function HomeScreen() {
+{/* A funçãao async fetchAddress, tenta conectar com a API de CEP, 
+e espera encontrar a localização pesquisa, caso ela encontrar ela muda o 
+estado da constante visivel para true, "abrindo" o modal na tela,
+se caso ela não encontrar a localização, o catch captura o erro e emite um console alerta*/}
+
+  const fetchAddress = async () => {
+    try {
+      const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+      setAddress(response.data);
+      setVisivel(true);
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      setAddress(null);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+    <View style={styles.Container}>
+      <View style={styles.Square} >
+        <Image style={styles.Logo} source={require('../../assets/images/LogoMap.png')}/>
+      <TextInput
+      style={styles.Input}
+        placeholder="Digite o CEP"
+        value={cep}
+        onChangeText={setCep}
+        keyboardType="numeric"
+      />
+      <Pressable onPress={fetchAddress} style={styles.Button}>
+        <Text style={styles.ButtonTxt} >Encontrar</Text>
+      </Pressable>
+      </View>
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+      <Modal visible={visivel} transparent={true} >
+        <View style={styles.ContainerB} >
+        <View style={styles.Square} >
+      {address && (
+        <View style={{justifyContent: 'center', gap: 10, margin: '20%',}} >
+          <Text>CEP: {address.cep}</Text>
+          <Text>Rua: {address.logradouro}</Text>
+          <Text>Bairro: {address.bairro}</Text>
+          <Text>Cidade: {address.localidade}</Text>
+          <Text>Estado: {address.uf}</Text>
+        </View>
+      )}
+      <Pressable onPress={() => setVisivel(false)} style={styles.Button}>
+        <Text style={styles.ButtonTxt} >Pesquisar novo CEP</Text>
+      </Pressable>
+      </View>
+      </View>
+      </Modal>
+    </View>
+  );
+};
+
+export default App;
