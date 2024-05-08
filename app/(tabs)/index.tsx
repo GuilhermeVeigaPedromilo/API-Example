@@ -9,9 +9,11 @@ const App = () => {
   const [visivel ,setVisivel] = useState(false)
 
 {/* A funçãao async fetchAddress, tenta conectar com a API de CEP, 
-e espera encontrar a localização pesquisa, caso ela encontrar ela muda o 
-estado da constante visivel para true, "abrindo" o modal na tela,
-se caso ela não encontrar a localização, o catch captura o erro e emite um console alerta*/}
+e espera encontrar a localização pesquisa (A ideia é que enquanto ela opera, 
+ela não atrapalhe outras funcionalidades do aplicativo), caso ela encontrar dados inseridos
+ela muda o estado da constante visivel para true, "abrindo" o modal na tela,
+se caso ela não encontrar nenhum dado inserido no TextInput,
+ o catch captura o erro e emite um console alerta*/}
 
   const fetchAddress = async () => {
     try {
